@@ -1,0 +1,31 @@
+\input{preamble.latex}
+
+\author{Кирилл Елагин}
+
+\begin{document}
+
+\input{Title.latex}
+
+\tableofcontents
+\clearpage
+
+\phantomsection
+\addcontentsline{toc}{section}{Введение}
+\section*{Введение}
+\input{Introduction.latex}
+
+\section{Постановка задачи}
+\input{Task.latex}
+
+\section{Реализация}
+\input{Implementation.latex}
+
+\phantomsection
+\addcontentsline{toc}{section}{Заключение}
+\section*{Заключение}
+\input{Conclusion.latex}
+
+\clearpage
+\bibliography{bib}
+
+\end{document}

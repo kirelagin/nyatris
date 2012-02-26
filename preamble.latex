@@ -1,0 +1,26 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[english,russian]{babel}
+
+\usepackage[a4paper, hmargin={3cm, 1.5cm}, vmargin={2.0cm, 2.0cm}]{geometry}
+\usepackage[bookmarks=true,unicode=true,pdfstartview={FitW},hidelinks]{hyperref}
+
+\usepackage{indentfirst}
+\frenchspacing
+\usepackage{color}
+
+\usepackage{mathtext}
+
+\usepackage{listings}
+\lstloadlanguages{Haskell}
+\lstset{extendedchars=false}
+
+\usepackage[medium]{titlesec}
+\titleformat{\section}{\bfseries\Large}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\bfseries\large}{\thesubsection.}{0.5em}{}
+
+\usepackage{cite}
+\bibliographystyle{unsrt}
