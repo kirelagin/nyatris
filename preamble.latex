@@ -6,7 +6,7 @@
 \usepackage[english,russian]{babel}
 
 \usepackage[a4paper, hmargin={3cm, 1.5cm}, vmargin={2.0cm, 2.0cm}]{geometry}
-\usepackage[bookmarks=true,unicode=true,pdfstartview={FitW},hidelinks]{hyperref}
+\usepackage[bookmarks=true,unicode=true,pdfstartview={FitV},hidelinks]{hyperref}
 
 \usepackage{indentfirst}
 \frenchspacing
@@ -24,3 +24,8 @@
 
 \usepackage{cite}
 \bibliographystyle{unsrt}
+
+\usepackage[pdftex]{graphicx}
+\graphicspath{{images/}}
+
+\usepackage[absolute]{textpos}
