@@ -7,6 +7,7 @@
 
 \usepackage[a4paper, hmargin={3cm, 1.5cm}, vmargin={2.0cm, 2.0cm}]{geometry}
 \usepackage[bookmarks=true,unicode=true,pdfstartview={FitV},hidelinks]{hyperref}
+\usepackage[all]{hypcap}
 
 \usepackage{indentfirst}
 \frenchspacing
