@@ -25,7 +25,7 @@ def build(bld):
        )
     bld(
         rule='${LHS2TEX} ${SRC} -o ${TGT}',
-        source='Code.lhs',
+        source='../src/nyatris.lhs',
         target='Code.latex',
        )
 

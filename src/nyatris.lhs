@@ -1,11 +1,9 @@
-----------------
---
--- Kawaii Tetris
---
--- | Kirill Elagin <kirelagin@gmail.com>
---
---------
+%include polycode.fmt
 
+
+Импортирование необходимых модулей.
+
+\begin{code}
 import qualified Data.List as L
 import Control.Arrow
 import Graphics.UI.WX hiding (Event, value)
@@ -14,36 +12,50 @@ import Reactive.Banana.WX
 
 import Nyatris.Shape
 import Nyatris.Random
+\end{code}
 
 
-cellSize = 20
-(fieldW, fieldH) = (10, 20)
-(nextWpx, nextHpx) = (cellSize * (maxW+1), cellSize * (maxH+1))
-    where maxW = maximum $ map shapeWidth shapes
-          maxH = maximum $ map shapeHeight shapes
+Размеры кллеток, составляющих фигуры, игрового поля и окна предпросмотра следующей фигуры.
 
+\begin{code}
+cellSize            = 20
+(fieldW, fieldH)    = (10, 20)
+(nextWpx, nextHpx)  = (cellSize * (maxW+1), cellSize * (maxH+1))
+    where  maxW  = maximum $ map shapeWidth shapes
+           maxH  = maximum $ map shapeHeight shapes
+\end{code}
+
+
+Всего существует восемь различных тетрамино. Здесь они заданы с помощью графической нотации
+(крестик означает заполненную клетку фигуры, нолик — пустую). Каждая падающая фигура
+будет случайным образом раскрашена в один из шести перечисленных цветов.
+
+\begin{code}
 shapes = tetroI : tetroJ : tetroZ : tetroT : tetroO : tetroL : tetroS :[]
     where
-        x = FilledCell
-        o = EmptyCell
+        x  = FilledCell
+        o  = EmptyCell
 
-        tetroI = shape [[x,x,x,x]]
-        tetroJ = shape [[o,o,x,o,o]
-                       ,[o,o,x,x,x]
-                       ,[o,o,o,o,o]]
-        tetroZ = shape [[x,x,o]
-                       ,[o,x,x]
-                       ,[o,o,o]]
-        tetroT = shape [[o,x,o]
-                       ,[x,x,x]
-                       ,[o,o,o]]
-        tetroO = shape [[x,x]
-                       ,[x,x]]
-        tetroL = shapeMirrorH tetroJ
-        tetroS = shapeMirrorH tetroZ
+        tetroI  = shape  [[x,x,x,x]]
+        tetroJ  = shape  [[o,o,x,o,o]
+                         ,[o,o,x,x,x]
+                         ,[o,o,o,o,o]]
+        tetroZ  = shape  [[x,x,o]
+                         ,[o,x,x]
+                         ,[o,o,o]]
+        tetroT  = shape  [[o,x,o]
+                         ,[x,x,x]
+                         ,[o,o,o]]
+        tetroO  = shape  [[x,x]
+                         ,[x,x]]
+        tetroL  = shapeMirrorH tetroJ
+        tetroS  = shapeMirrorH tetroZ
 
 shapeColours = [cyan, magenta, yellow, green, blue, rgb 139 0 255]
+\end{code}
 
+
+\begin{code}
 main = start $ do
     f       <- frameFixed       [text := "Nyatris"]
     p       <- panel f          [border := BorderSunken
@@ -58,7 +70,13 @@ main = start $ do
     -- FIXME: border widths!?
     set f [layout := margin 10 $ row 15 $
             [minsize (sz (cellSize * fieldW + 10) (cellSize * fieldH + 5)) $ widget p
-            ,column 10 $ [widget score, minsize (sz (nextWpx + 5) (nextHpx + 5)) $ widget next, vfill empty, widget bPause, widget bNew]]
+            ,column 10 $  [widget score
+                          ,minsize (sz (nextWpx + 5) (nextHpx + 5)) $ widget next
+                          ,vfill empty
+                          ,widget bPause
+                          ,widget bNew
+                          ]
+            ]
           ]
     focusOn bNew
 
@@ -275,3 +293,4 @@ nextShapeToRects s = map (flip rect (sz (cellSize-1) (cellSize-1))
                          ) . shapePoints . shapeMirrorV $ s
     where rectW = (shapeWidth s) * cellSize
           rectH = (shapeHeight s) * cellSize
+\end{code}
