@@ -30,3 +30,5 @@
 \graphicspath{{images/}}
 
 \usepackage[absolute]{textpos}
+
+\usepackage{mylhs2tex}
