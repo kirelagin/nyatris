@@ -80,9 +80,9 @@ main = start $ do
           ]
     focusOn bNew
 
-    (handleNew, fireNew) <- newAddHandler
-    (handlePaint, firePaint) <- newAddHandler
-    (handlePaintNext, firePaintNext) <- newAddHandler
+    (handleNew, fireNew)              <- newAddHandler
+    (handlePaint, firePaint)          <- newAddHandler
+    (handlePaintNext, firePaintNext)  <- newAddHandler
 
     --
     -- FIXME: I hate this generator separate from logicsNet
@@ -92,27 +92,27 @@ main = start $ do
     firstShapeColour <- rndShapeColourSrc
 
     logicsNet  <- compile $ do
-        etimer <- event0 t command
-        ekey   <- event1 p keyboard
-        enew   <- fromAddHandler handleNew
-        epaint <- fromAddHandler handlePaint
-        epaintnext <- fromAddHandler handlePaintNext
-        brndshape <- fromPoll rndShapeSrc
-        brndshapecolour <- fromPoll rndShapeColourSrc
+        etimer           <- event0 t command
+        ekey             <- event1 p keyboard
+        enew             <- fromAddHandler handleNew
+        epaint           <- fromAddHandler handlePaint
+        epaintnext       <- fromAddHandler handlePaintNext
+        brndshape        <- fromPoll rndShapeSrc
+        brndshapecolour  <- fromPoll rndShapeColourSrc
 
         let
-            eleft   = () <$ filterE ((`elem` p) . keyKey) ekey
-                       where p = [KeyLeft, KeyChar 'a']
-            eright  = () <$ filterE ((`elem` p) . keyKey) ekey
-                       where p = [KeyRight, KeyChar 'd']
-            erotcw  = () <$ filterE ((`elem` p) . keyKey) ekey
-                       where p = [KeyUp, KeyChar 'e']
-            erotccw = () <$ filterE ((`elem` p) . keyKey) ekey
-                       where p = [KeyDown, KeyChar 'q']
-            espace  = () <$ filterE ((`elem` p) . keyKey) ekey
-                       where p = [KeySpace, KeyChar 's']
-            eret    = () <$ filterE ((`elem` p) . keyKey) ekey
-                       where p = [KeyReturn]
+            eleft    = () <$ filterE ((`elem` p) . keyKey) ekey
+                        where p = [KeyLeft, KeyChar 'a']
+            eright   = () <$ filterE ((`elem` p) . keyKey) ekey
+                        where p = [KeyRight, KeyChar 'd']
+            erotcw   = () <$ filterE ((`elem` p) . keyKey) ekey
+                        where p = [KeyUp, KeyChar 'e']
+            erotccw  = () <$ filterE ((`elem` p) . keyKey) ekey
+                        where p = [KeyDown, KeyChar 'q']
+            espace   = () <$ filterE ((`elem` p) . keyKey) ekey
+                        where p = [KeySpace, KeyChar 's']
+            eret     = () <$ filterE ((`elem` p) . keyKey) ekey
+                        where p = [KeyReturn]
 
             etick = etimer `union` espace
 
@@ -135,37 +135,41 @@ main = start $ do
                              (tryChange rotCCW <$> bfield <@ erotccw)
                             `union`
                              (const Nothing <$ efail)
-                where fall = blockMove (0, -1)
-                      mvL = blockMove (-1, 0)
-                      mvR = blockMove (1, 0)
-                      rotCW b  = b {blockRotation = rotateCW $ blockRotation b}
-                      rotCCW b = b {blockRotation = rotateCCW $ blockRotation b}
-                      tryChange _ _ Nothing  = Nothing
-                      tryChange t f (Just b) = Just $ if intersecting b' ((map snd f)++fieldBorder) then b else b'
-                        where b' = t b
-                      spawn n c = const . Just $  Block n (pt (div fieldW 2) fieldH) RotN c
+                where  fall = blockMove (0, -1)
+                       mvL = blockMove (-1, 0)
+                       mvR = blockMove (1, 0)
+                       rotCW b  = b {blockRotation = rotateCW $ blockRotation b}
+                       rotCCW b = b {blockRotation = rotateCCW $ blockRotation b}
+                       tryChange _ _ Nothing  = Nothing
+                       tryChange t f (Just b) = Just $  if intersecting b' ((map snd f)++fieldBorder)
+                                                        then b
+                                                        else b'
+                         where b' = t b
+                       spawn n c = const . Just $  Block n (pt (div fieldW 2) fieldH) RotN c
 
 
-            bfield = accumB [] $ (updField <$> bfalling <@ ecollide) `union` (const [] <$ enew) `union` (clear <$> eclear)
-                where updField Nothing f = f
-                      updField (Just b) f = (blockToFieldCol b) ++ f
-                      clear rows f = dropLines rows $ filter (not . \(_,p) -> (pointY p `elem` rows)) f
-                        where dropLines [] f = f
-                              dropLines (r:rows) f = fmap (\(c,p) -> (c, if pointY p > r then pointSub p (pt 0 1) else p)) f'
-                                where f' = dropLines rows f
+            bfield =  accumB [] $ (updField <$> bfalling <@ ecollide) `union`
+                      (const [] <$ enew) `union` 
+                      (clear <$> eclear)
+                where  updField Nothing f = f
+                       updField (Just b) f = (blockToFieldCol b) ++ f
+                       clear rows f = dropLines rows $ filter (not . \(_,p) -> (pointY p `elem` rows)) f
+                         where  dropLines [] f = f
+                                dropLines (r:rows) f = fmap (\(c,p) -> (c, if pointY p > r then pointSub p (pt 0 1) else p)) f'
+                                  where f' = dropLines rows f
 
             ecollide = () <$ filterE id (cd <$> bfalling <*> bfield <@ etick)
-                where cd Nothing _ = False
-                      cd (Just b) f = intersecting (blockMove (0, -1) b) ((map snd f)++fieldBBorder)
+                where  cd Nothing _ = False
+                       cd (Just b) f = intersecting (blockMove (0, -1) b) ((map snd f)++fieldBBorder)
 
             eclear = filterE (not . null) $ f <$> bfalling <*> bfield <@ ecollide
-                where f Nothing _ = []
-                      f (Just b) field = filter fullLine [(pointY $ blockPos b) - blockDHeight b .. (pointY $ blockPos b) + blockUHeight b]
-                        where fullLine n = fieldW == (length $ filter (\p -> (pointY $ p) == n) ((map snd field) ++ blockToField b))
+                where  f Nothing _ = []
+                       f (Just b) field = filter fullLine [(pointY $ blockPos b) - blockDHeight b .. (pointY $ blockPos b) + blockUHeight b]
+                         where fullLine n = fieldW == (length $ filter (\p -> (pointY $ p) == n) ((map snd field) ++ blockToField b))
 
             efail = () <$ (filterE id $ tooHigh <$> bfalling <@ ecollide)
-                where tooHigh Nothing = False
-                      tooHigh (Just b) = (pointY $ blockPos b) + blockUHeight b >= fieldH
+                where  tooHigh Nothing = False
+                       tooHigh (Just b) = (pointY $ blockPos b) + blockUHeight b >= fieldH
 
             bscore = accumB 0 $
                  ((\k -> (+) $ k * k) <$> (length <$> eclear))
@@ -173,9 +177,9 @@ main = start $ do
                  (const 0 <$ enew)
 
             ballcells = (++) <$> blf <*> bfield
-                where blf = bltof <$> bfalling
-                      bltof Nothing = []
-                      bltof (Just b) = blockToFieldCol b
+                where  blf = bltof <$> bfalling
+                       bltof Nothing = []
+                       bltof (Just b) = blockToFieldCol b
 
             drawred = stepper False $ (False <$ enew) `union` (True <$ efail)
 
@@ -211,11 +215,11 @@ main = start $ do
 
         let stSw pe = do
                         if pe then
-                            do focusOn p
-                               reactuate logicsNet
+                            do  focusOn p
+                                reactuate logicsNet
                         else
-                            do pause logicsNet
-                               focusOn bPause
+                            do  pause logicsNet
+                                focusOn bPause
 
         epaused <- changes bpaused
         reactimate $ stSw <$> bpaused <@ epaused
@@ -229,14 +233,14 @@ shapePoints = map (uncurry pt) . shapeCells
 type Position = Point2 Int
 
 data Rotation = RotN | RotE | RotS | RotW
-rotateCW RotN = RotE
-rotateCW RotE = RotS
-rotateCW RotS = RotW
-rotateCW RotW = RotN
-rotateCCW RotE = RotN
-rotateCCW RotS = RotE
-rotateCCW RotW = RotS
-rotateCCW RotN = RotW
+rotateCW RotN   = RotE
+rotateCW RotE   = RotS
+rotateCW RotS   = RotW
+rotateCW RotW   = RotN
+rotateCCW RotE  = RotN
+rotateCCW RotS  = RotE
+rotateCCW RotW  = RotS
+rotateCCW RotN  = RotW
 
 data Block = Block {blockShape :: Shape, blockPos :: Position, blockRotation :: Rotation, blockColour :: Color}
 blockToField (Block s p r _) = (pointAdd p) <$> fmap rot (shapePoints s)
@@ -291,6 +295,6 @@ nextShapeToRects s = map (flip rect (sz (cellSize-1) (cellSize-1))
                          . (flip pointScale cellSize)
                          . (pointAdd $ pt (shapeLeftL s) (shapeUpL s))
                          ) . shapePoints . shapeMirrorV $ s
-    where rectW = (shapeWidth s) * cellSize
-          rectH = (shapeHeight s) * cellSize
+    where  rectW = (shapeWidth s) * cellSize
+           rectH = (shapeHeight s) * cellSize
 \end{code}
