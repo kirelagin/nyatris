@@ -1,0 +1,10 @@
+top = '.'
+
+
+def configure(conf):
+    conf.find_program('ghc')
+
+
+def build(bld):
+    # Can't make it work =(
+    pass
