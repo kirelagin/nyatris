@@ -25,6 +25,28 @@
 Полный список событий и сигналов приведен в подразделе~\ref{evsiglist}, а их взаимосвязь наглядно отражена
 на рис.~\ref{pic:logics} и рис.~\ref{pic:global}.
 
+
+\begin{figure}[p]
+\includegraphics[angle=90,width=1\linewidth]{logics}
+\caption{Сеть логики}
+\label{pic:logics}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+
+\includegraphics[width=1\linewidth]{global}
+\caption{Общая структура}
+\label{pic:global}
+
+\vspace{5em}
+
+\includegraphics{scr.png}
+\caption{Снимок экрана}
+\label{pic:scr}
+\end{figure}
+
+
 \subsection{События и сигналы}
 Для моделирования игры было принято решение использовать две сети обработки данных:
 сеть управления моделированием и сеть, непосредственно реализующую логику игры.
@@ -83,23 +105,3 @@
 \end{itemize}
 
 Рис.~\ref{pic:logics} демонстрирует связь между событиями и сигналами более наглядно.
-
-\begin{figure}[p]
-\includegraphics[angle=90,width=1\linewidth]{logics}
-\caption{Сеть логики}
-\label{pic:logics}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-
-\includegraphics[width=1\linewidth]{global}
-\caption{Общая структура}
-\label{pic:global}
-
-\vspace{5em}
-
-\includegraphics{scr.png}
-\caption{Снимок экрана}
-\label{pic:scr}
-\end{figure}
