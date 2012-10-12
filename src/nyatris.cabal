@@ -1,0 +1,17 @@
+Name:               nyatris
+Version:            1.0
+License:            BSD3
+License-file:       LICENSE
+Author:             Kirill Elagin
+Maintainer:         kirelagin@gmail.com
+Build-type:         Simple
+Cabal-version:      >=1.6
+
+Executable nyatris
+  Main-is:          nyatris.lhs
+  Build-Depends:    base,
+                    random,
+                    wx,
+                    reactive-banana == 0.6.*,
+                    reactive-banana-wx == 0.6.*
+  Extensions:       DoAndIfThenElse

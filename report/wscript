@@ -1,6 +1,3 @@
-top = '.'
-
-
 def configure(conf):
     conf.load('tex')
     if not conf.env.PDFLATEX:

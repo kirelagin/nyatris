@@ -1,8 +1,11 @@
+top = '.'
+
+subdirs = ['report', 'src']
+
+
 def configure(conf):
-    conf.recurse('report')
-    conf.recurse('src')
+    conf.recurse(subdirs)
 
 
 def build(bld):
-    bld.recurse('report')
-    bld.recurse('src')
+    bld.recurse(subdirs)

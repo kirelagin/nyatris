@@ -1,10 +1,6 @@
-top = '.'
-
-
 def configure(conf):
-    conf.find_program('ghc')
+    conf.load('cabal')
 
 
 def build(bld):
-    # Can't make it work =(
-    pass
+    bld(source = 'nyatris.cabal')
