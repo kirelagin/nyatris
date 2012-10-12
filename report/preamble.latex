@@ -17,7 +17,29 @@
 
 \usepackage{listings}
 \lstloadlanguages{Haskell}
-\lstset{extendedchars=false}
+\lstnewenvironment{code}
+    {\lstset{}%
+      \csname lst@SetFirstLabel\endcsname}
+    {\csname lst@SaveFirstLabel\endcsname}
+    \lstset{
+      basicstyle=\small\ttfamily,
+      flexiblecolumns=false,
+      basewidth={0.5em,0.45em},
+      literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+               {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+               {\\\\}{{\char`\\\char`\\}}1
+               {->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
+               {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2
+               {\ .}{{$\circ$}}2 {\ .\ }{{$\circ$}}2
+               {>>}{{>>}}2 {>>=}{{>>=}}2
+               {|}{{$\mid$}}1
+    }
+\lstset{prebreak=\raisebox{0ex}[0ex][0ex]
+        {\ensuremath{\hookrightarrow}}}
+\lstset{postbreak=\raisebox{0ex}[0ex][0ex]
+        {\ensuremath{\hookleftarrow\space}}}
+\lstset{breaklines=true, breakatwhitespace=true}
+%\lstset{numbers=left, numberstyle=\scriptsize}
 
 \usepackage[medium]{titlesec}
 \titleformat{\section}{\bfseries\Large}{\thesection.}{0.5em}{}
@@ -32,3 +54,4 @@
 \usepackage[absolute]{textpos}
 
 \usepackage{mylhs2tex}
+\long\def\ignore#1{}

@@ -177,6 +177,11 @@ main = start $ do
             bnextshapecolour = stepper firstShapeColour $ brndshapecolour <@ espawn
 \end{code}
 
+Сигнал @bfalling@ описывает падающую на данный момент фигуру. Она сдвигается вниз на один блок
+по событию @etick@, перемещается влево, либо вправо, а также вращается по событиям клавиатуры
+@eleft@, @eright@, @erotcw@, @erotccw@. Если происходит событие @efail@, падающая фигура
+исчезает, и появляется при событии @espawn@.
+
 \begin{code}
             bfalling = accumB Nothing $
                              ((>>= Just . fall) <$ etick)
@@ -205,6 +210,10 @@ main = start $ do
                        spawn n c = const . Just $  Block n (pt (div fieldW 2) fieldH) RotN c
 \end{code}
 
+Сигнал @bfield@ описывает уже упавшие ранее блоки. Изначально он представляет собой пустой список.
+Затем в этот список при столкновении (@ecollide@) добавляются блоки падающей фигуры @bfalling@.
+Событие @eclear@ удаляет заполнившиеся горизонтальные ряды.
+Событие @enew@ очищает поле.
 
 \begin{code}
             bfield =  accumB [] $ (updField <$> bfalling <@ ecollide) `union`
@@ -220,11 +229,17 @@ main = start $ do
                                   where f' = dropLines rows f
 \end{code}
 
+Событие @ecollide@ происходит когда падающая фигура сталкивается с блоками, уже находящимися на поле.
+
 \begin{code}
             ecollide = () <$ filterE id (cd <$> bfalling <*> bfield <@ etick)
                 where  cd Nothing _ = False
                        cd (Just b) f = intersecting (blockMove (0, -1) b) ((map snd f)++fieldBBorder)
 \end{code}
+
+Событие @eclear@ происходит сразу после события @ecollide@ в том случае, если после столкновения
+фигуры с блоками игрового поля хотя бы один ряд оказывается заполнен. Это событие имеет параметр —
+номера заполненных рядов.
 
 \begin{code}
             eclear = filterE (not . null) $ f <$> bfalling <*> bfield <@ ecollide
@@ -235,11 +250,16 @@ main = start $ do
                                                                         ((map snd field) ++ blockToField b))
 \end{code}
 
+Событие @efail@ означает, что «стакан», в который падают фигуры, переполнен.
+
 \begin{code}
             efail = () <$ (filterE id $ tooHigh <$> bfalling <@ ecollide)
                 where  tooHigh Nothing = False
                        tooHigh (Just b) = (pointY $ blockPos b) + blockUHeight b >= fieldH
 \end{code}
+
+@bscore@ — целочисленный сигнал, содержащий текущий игровой счет. Очки прибавляются при событии
+@eclear@. Событие @enew@ сбрасывает счет на ноль.
 
 \begin{code}
             bscore = accumB 0 $
@@ -248,6 +268,9 @@ main = start $ do
                  (const 0 <$ enew)
 \end{code}
 
+@ballcells@ — объединение блоков, уже находящихся на игровом поле, и блоков, образующий падающую фигуру.
+Этот сигнал используется при отрисовывании поля.
+
 \begin{code}
             ballcells = (++) <$> blf <*> bfield
                 where  blf = bltof <$> bfalling
@@ -255,14 +278,21 @@ main = start $ do
                        bltof (Just b) = blockToFieldCol b
 \end{code}
 
+Булев сигнал, определяющий, определяющий, будут ли блоки на поле раскрашены красным цветом. Событие
+@enew@ устанавливает значение @False@, событие @efail@ — @True@.
+
 \begin{code}
             drawred = stepper False $ (False <$ enew) `union` (True <$ efail)
 \end{code}
+
+События, сигнализирующие о необходимости перерисовать игровое поле и окно предпросмотра следующий фигуры.
 
 \begin{code}
         erepaint <- changes bfalling
         erepaintnext <- changes bnextshape
 \end{code}
+
+Подключение выводов сети логики к виджетам библиотеки \emph{wxWidgets}.
 
 \begin{code}
         reactimate $ do {firePaint (); repaint p} <$ erepaint
@@ -279,6 +309,8 @@ main = start $ do
 \end{code}
 
 
+К сети управления игрой подключена кнопка «Новая игра», галочка «Пауза», а также клавиатуры.
+
 \begin{code}
     controlNet <- compile $ do
         ebnew       <- event0 bNew command
@@ -288,6 +320,9 @@ main = start $ do
         bpauseCh    <- behavior bPause checked
 \end{code}
 
+Значение сигнала @bpaused@ изменяется нажатием клавиши «p» на клавиатуре, либо щелчком по галочке
+«Пауза».
+
 \begin{code}
         let
             ekeyp = () <$ filterE ((== KeyChar 'p') . keyKey) (epkey `union` epauseKey)
@@ -296,10 +331,14 @@ main = start $ do
                 (const <$> bpauseCh <@ epause) `union` (not <$ ekeyp) `union` (const False <$ ebnew)
 \end{code}
 
+В зависимости от значения сигнала @bpaused@ изменяется состояние галочки.
+
 \begin{code}
         sink p [enabled :== not <$> bpaused]
         sink bPause [enabled :== stepper False $ True <$ ebnew, checked :== bpaused]
 \end{code}
+
+Изменение сигнала @bpaused@ запускает либо приостанавливает сеть логики.
 
 \begin{code}
         let reactuate n = do {pause n; actuate n} -- uh =(
@@ -317,12 +356,16 @@ main = start $ do
         reactimate $ do {reactuate logicsNet; fireNew (); focusOn p} <$ ebnew
 \end{code}
 
+
+На этом заканчивается описание реактивных сетей @logicsNet@ и @controlNet@.
+Последнее, что делает функция @main@, — запуск управляющей сети.
+
 \begin{code}
     actuate controlNet
 \end{code}
 
 
-
+\ignore{
 \begin{code}
 shapePoints :: Shape -> [Position]
 shapePoints = map (uncurry pt) . shapeCells
@@ -399,3 +442,4 @@ nextShapeToRects s = map  (flip rect (sz (cellSize-1) (cellSize-1))
     where  rectW = (shapeWidth s) * cellSize
            rectH = (shapeHeight s) * cellSize
 \end{code}
+}
