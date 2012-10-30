@@ -25,10 +25,6 @@
 \section*{Заключение}
 \input{Conclusion.latex}
 
-\appendix
-\section{Исходный код}
-\input{Code.latex}
-
 \clearpage
 \bibliography{bib}
 
