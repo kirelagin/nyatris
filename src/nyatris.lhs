@@ -80,7 +80,6 @@ main = start $ do
     next    <- panel f          [border := BorderSunken
                                 ]
 
-    -- FIXME: border widths!?
     set f [layout := margin 10 $ row 15 $
             [minsize (sz (cellSize * fieldW + 10) (cellSize * fieldH + 5)) $ widget p
             ,column 10 $  [widget score
@@ -106,8 +105,6 @@ main = start $ do
 Генераторы случайных последовательностей, определяющих форму и цвет следующей фигуры.
 
 \begin{code}
-    --
-    -- FIXME: I hate this generator separate from logicsNet
     let rndShapeSrc = chooseRIO shapes
     firstShape <- rndShapeSrc
     let rndShapeColourSrc = chooseRIO shapeColours
